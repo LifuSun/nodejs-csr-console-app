@@ -1,0 +1,119 @@
+You have been tasked with creating a small console application to assist with Customer Service Representatives (CSRs) accepting card numbers over the phone for making energy bill payments.
+Your task is to write an application that is resilient and maintainable. Treat this as an exercise to show us what you would be proud of to develop for a customer. You should spend no more than 2 hours on this exercise.
+Requirements
+The console application should be able to run as an executable on the CSR’s Windows device.
+The console application needs to accept the following data for processing a transaction successfully. This data will be keyed into the console application by the CSR:
+Order Number: A unique 10 character alphanumeric value
+Amount: The amount of the transaction
+Card Number
+Card Expiry
+Card CVV
+The console application should let the CSR know whether a payment has been made successfully or not and present an appropriate reason for the result of the transaction.
+The test credentials and domain for the payment gateway have yet to be acquired. Please use the following dummy requests and responses for creating an integration to the payment gateway. 
+Payment URL format: /api/rest/version/{apiVersionNumber}/merchant/{merchantID}/order/{orderNumber}/transaction/{transactionID}
+Key information for response fields:
+gatewayCode: Can either be:
+APPROVED: Transaction approved
+DECLINED: The requested operation was not successful
+acquirerMessage: The response from the acquirer in the text form
+
+Successful Payment Request:
+URL:
+PUT /api/rest/version/81/merchant/TESTDC00019/order/REF0987240/transaction/1
+Request Body:
+{
+    "apiOperation": "PAY",
+    "order": {
+        "amount": 15.00,
+        "currency": "NZD",
+    },
+    "sourceOfFunds":{
+        "type": "CARD",
+        "provided":{
+            "card": {
+                "number": "5123450000000008",
+                "securityCode": "001",
+                "expiry": {
+                    "month": "01",
+                    "year": "39"
+                }
+            }
+        }
+    }
+}
+Successful Payment Response:
+    "response": {
+        "acquirerCode": "00",
+        "acquirerMessage": "Approved",
+        "gatewayCode": "APPROVED",
+        "gatewayRecommendation": "NO_ACTION"
+    },
+    "result": "SUCCESS",
+    "sourceOfFunds": {
+        "provided": {
+            "card": {
+                "brand": "MASTERCARD",
+                "expiry": {
+                    "month": "1",
+                    "year": "39"
+                },
+                "fundingMethod": "CREDIT",
+                "number": "512345xxxxxx0008",
+                "scheme": "MASTERCARD",
+                "storedOnFile": "NOT_STORED"
+            }
+        },
+        "type": "CARD"
+    }
+Failed Payment Request (invalid card details):
+URL:
+PUT /api/rest/version/81/merchant/TESTDC00019/order/REF0987241/transaction/1
+Request Body:
+{
+    "apiOperation": "PAY",
+    "order": {
+        "amount": 15.00,
+        "currency": "NZD"
+    },
+    "sourceOfFunds":{
+        "type": "CARD",
+        "provided":{
+            "card": {
+                "number": "4508750015741019",
+                "securityCode": "001",
+                "expiry": {
+                    "month": "05",
+                    "year": "39"
+                }
+            }
+        }
+    }
+}
+Failed Payment Response:
+    "response": {
+        "acquirerCode": "05",
+        "acquirerMessage": "Do not honour",
+        "gatewayCode": "DECLINED",
+        "gatewayRecommendation": "RESUBMIT_WITH_ALTERNATIVE_PAYMENT_DETAILS"
+    },
+    "result": "FAILURE",
+    "sourceOfFunds": {
+        "provided": {
+            "card": {
+                "brand": "VISA",
+                "expiry": {
+                    "month": "5",
+                    "year": "39"
+                },
+                "fundingMethod": "CREDIT",
+                "number": "450875xxxxxx1019",
+                "scheme": "VISA",
+                "storedOnFile": "NOT_STORED"
+            }
+        },
+        "type": "CARD"
+    }
+
+Tips:
+The application you are creating should be thought of as something that is long lived. As such it should follow best practices, be maintainable and be easy to iterate on by other team members. 
+If you are unsure about any requirements, use a best guess and capture it as an assumption in an assumptions file and/or inline comments.
